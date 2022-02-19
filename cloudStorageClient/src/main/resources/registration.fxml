@@ -13,15 +13,15 @@
                         <Font name="Courier New" size="36.0" />
                     </font>
                 </Label>
-                <TextField fx:id="name" layoutX="263.0" layoutY="104.0" prefHeight="26.0" prefWidth="206.0" promptText="Your name" />
-                <PasswordField fx:id="password" layoutX="264.0" layoutY="176.0" prefHeight="26.0" prefWidth="206.0" promptText="Password" />
+                <TextField fx:id="nameField" layoutX="263.0" layoutY="104.0" prefHeight="26.0" prefWidth="206.0" promptText="Your name" />
+                <PasswordField fx:id="passwordField" layoutX="264.0" layoutY="176.0" prefHeight="26.0" prefWidth="206.0" promptText="Password" />
                 <Button layoutX="379.0" layoutY="248.0" mnemonicParsing="false" onAction="#registration" prefHeight="27.0" prefWidth="90.0" style="-fx-background-color: #12DAC1;" text="Finish">
                     <font>
                         <Font name="Consolas" size="14.0" />
                     </font>
                 </Button>
-            <TextField fx:id="login" layoutX="263.0" layoutY="140.0" prefHeight="26.0" prefWidth="206.0" promptText="Login" />
-            <PasswordField fx:id="repeatedPassword" layoutX="263.0" layoutY="212.0" prefHeight="26.0" prefWidth="206.0" promptText="Repeat the password" />
+            <TextField fx:id="loginField" layoutX="263.0" layoutY="140.0" prefHeight="26.0" prefWidth="206.0" promptText="Login" />
+            <PasswordField fx:id="repeatedPasswordField" layoutX="263.0" layoutY="212.0" prefHeight="26.0" prefWidth="206.0" promptText="Repeat the password" />
             <Label fx:id="warningIncorrectlyData" layoutX="279.0" layoutY="79.0" text="Check correctly data!" textFill="RED" visible="false">
                <font>
                   <Font name="Courier New" size="14.0" />

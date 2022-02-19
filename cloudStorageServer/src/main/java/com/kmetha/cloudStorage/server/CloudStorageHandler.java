@@ -37,6 +37,10 @@ public class CloudStorageHandler extends SimpleChannelInboundHandler<ActionModel
                 selectClientDir((SelectClientDir) actionModel);
                 printServerFiles(context);
             }
+            case CREATE_FOLDER -> {
+                createFolder((CreateFolderModel) actionModel);
+                printServerFiles(context);
+            }
         }
     }
 
@@ -66,12 +70,20 @@ public class CloudStorageHandler extends SimpleChannelInboundHandler<ActionModel
 
     private void selectClientDir(SelectClientDir model) throws IOException {
         String clientDirPath = String.valueOf(currentDir.resolve(model.getClientDir()));
-        File f = new File(clientDirPath);
-        if (!f.exists()) {
-            f.mkdir();
+        File client = new File(clientDirPath);
+        if (!client.exists()) {
+            client.mkdir();
         }
         currentDir = Paths.get(clientDirPath);
         clientDir = Paths.get(clientDirPath);
+    }
+
+    private void createFolder(CreateFolderModel model) throws IOException {
+        String folderPath = String.valueOf(currentDir.resolve(model.getNameFolder()));
+        File folder = new File(folderPath);
+        if (!folder.exists()) {
+            folder.mkdir();
+        }
     }
 
     @Override

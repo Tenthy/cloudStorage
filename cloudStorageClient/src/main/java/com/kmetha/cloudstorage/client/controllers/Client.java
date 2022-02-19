@@ -8,10 +8,14 @@ import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
 import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 import java.io.*;
 import java.net.Socket;
@@ -27,6 +31,7 @@ public class Client implements Initializable {
 
     private static final int PORT = 8189;
     private static final String NAME = "localhost";
+    private static final String CREATE_NEW_FOLDER = "createFolder.fxml";
 
     private Socket socket;
     private ObjectDecoderInputStream is;
@@ -135,5 +140,17 @@ public class Client implements Initializable {
     public void toFolderAbove(ActionEvent actionEvent) throws IOException {
         String command = "#to_folder_above#";
         os.writeObject(new ChangeCurrentDir(command));
+    }
+
+    public void createFolder(ActionEvent actionEvent) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getClassLoader().getResource(CREATE_NEW_FOLDER));
+        Parent root = loader.load();
+        CreateFolder cf = loader.getController();
+        cf.initStream(os);
+        Stage stage = new Stage();
+        stage.setScene(new Scene(root));
+        stage.setResizable(false);
+        stage.setTitle("Create a new folder");
+        stage.show();
     }
 }

@@ -43,6 +43,11 @@
                   <Font name="Consolas Bold" size="14.0" />
                </font>
             </Button>
+            <Button layoutX="268.0" layoutY="69.0" mnemonicParsing="false" onAction="#createFolder" prefHeight="27.0" prefWidth="23.0" style="-fx-background-color: #12DAC1;" text="+">
+               <font>
+                  <Font name="Consolas Bold" size="14.0" />
+               </font>
+            </Button>
          </children>
       </AnchorPane>
       <Label layoutX="14.0" layoutY="26.0" text="Cloud Storage" textFill="#fafafa">
