@@ -6,6 +6,7 @@ import lombok.Data;
 
 /**
  * Class is used before working with the repository and a separate directory is created for each user.
+ * Class is used only once when the client establishes a connection with the server.
  */
 @Data
 public class SelectClientDir implements ActionModel {
