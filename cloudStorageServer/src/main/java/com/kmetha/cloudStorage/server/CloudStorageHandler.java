@@ -18,6 +18,10 @@ public class CloudStorageHandler extends SimpleChannelInboundHandler<ActionModel
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        File dir = new File("data");
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
         currentDir = Paths.get("data");
     }
 
@@ -64,12 +68,12 @@ public class CloudStorageHandler extends SimpleChannelInboundHandler<ActionModel
                 currentDir = Paths.get(folder);
             }
         } else {
-            currentDir = Paths.get(String.valueOf(currentDir.resolve(model.getPath())));
+            currentDir = Paths.get(currentDir.resolve(model.getPath()).toString());
         }
     }
 
     private void selectClientDir(SelectClientDir model) throws IOException {
-        String clientDirPath = String.valueOf(currentDir.resolve(model.getClientDir()));
+        String clientDirPath = currentDir.resolve(model.getClientDir()).toString();
         File client = new File(clientDirPath);
         if (!client.exists()) {
             client.mkdir();

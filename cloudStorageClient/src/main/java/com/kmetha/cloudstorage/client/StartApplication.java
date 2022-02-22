@@ -18,4 +18,8 @@ public class StartApplication extends Application {
         stage.setTitle("Cloud Storage");
         stage.show();
     }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
 }
