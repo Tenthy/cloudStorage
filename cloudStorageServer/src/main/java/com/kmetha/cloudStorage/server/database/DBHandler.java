@@ -1,4 +1,7 @@
-package com.kmetha.cloudstorage.core.database;
+package com.kmetha.cloudStorage.server.database;
+
+import com.kmetha.cloudstorage.core.action.models.UserForAuth;
+import com.kmetha.cloudstorage.core.action.models.UserForReg;
 
 import java.sql.*;
 
@@ -19,7 +22,7 @@ public class DBHandler extends DBConfiguration {
         return connection;
     }
 
-    public boolean tryToRegistration(User user) {
+    public boolean tryToRegistration(UserForReg user) {
         if (availabilityLogin(user.getLogin())) {
             String query = "INSERT INTO " + TABLE_USERS + "(" +
                     USER_NAME + "," +
@@ -57,7 +60,7 @@ public class DBHandler extends DBConfiguration {
         return true;
     }
 
-    public boolean authorization(User user) {
+    public boolean authorization(UserForAuth userForAuth) {
         String query = "SELECT * FROM " + TABLE_USERS;
         try {
             Statement statement = getConnection().createStatement();
@@ -65,7 +68,7 @@ public class DBHandler extends DBConfiguration {
             while (result.next()) {
                 String loginCheck = result.getString(USER_LOGIN);
                 String passwordCheck = result.getString(USER_PASS);
-                if (loginCheck.equals(user.getLogin()) && passwordCheck.equals(user.getPassword())) {
+                if (loginCheck.equals(userForAuth.getLogin()) && passwordCheck.equals(userForAuth.getPassword())) {
                     return true;
                 }
             }
@@ -75,14 +78,14 @@ public class DBHandler extends DBConfiguration {
         return false;
     }
 
-    public String getNameByLoginAndPass(User user) {
+    public String getNameByLoginAndPass(UserForAuth userForAuth) {
         String query = "SELECT * FROM " + TABLE_USERS;
         try {
             Statement statement = getConnection().createStatement();
             ResultSet result = statement.executeQuery(query);
             while (result.next()) {
-                if (user.getLogin().equals(result.getString(USER_LOGIN)) &&
-                        user.getPassword().equals(result.getString(USER_PASS))) {
+                if (userForAuth.getLogin().equals(result.getString(USER_LOGIN)) &&
+                        userForAuth.getPassword().equals(result.getString(USER_PASS))) {
                     return result.getString(USER_NAME);
                 };
             }

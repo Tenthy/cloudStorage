@@ -1,5 +1,6 @@
 package com.kmetha.cloudStorage.server;
 
+import com.kmetha.cloudStorage.server.database.DBHandler;
 import com.kmetha.cloudstorage.core.action.ActionModel;
 import com.kmetha.cloudstorage.core.action.models.*;
 import io.netty.channel.ChannelHandlerContext;
@@ -15,9 +16,11 @@ public class CloudStorageHandler extends SimpleChannelInboundHandler<ActionModel
 
     private Path currentDir;
     private Path clientDir;
+    private final DBHandler db = new DBHandler();
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        System.out.println("client is connected");
         File dir = new File("data");
         if (!dir.exists()) {
             dir.mkdir();
@@ -25,9 +28,12 @@ public class CloudStorageHandler extends SimpleChannelInboundHandler<ActionModel
         currentDir = Paths.get("data");
     }
 
+
     @Override
     protected void channelRead0(ChannelHandlerContext context, ActionModel actionModel) throws Exception {
         switch (actionModel.getType()) {
+            case USER_AUTH -> authorization(context, (UserForAuth) actionModel);
+            case USER_REG -> registration(context, (UserForReg) actionModel);
             case REQUEST -> downloadFileToClient(context, (RequestFile) actionModel);
             case TRANSFER -> {
                 uploadFileFromClient((TransferFile) actionModel);
@@ -46,6 +52,21 @@ public class CloudStorageHandler extends SimpleChannelInboundHandler<ActionModel
                 printServerFiles(context);
             }
         }
+    }
+
+    private void authorization(ChannelHandlerContext context, UserForAuth model) {
+        if (db.authorization(model)) {
+            model.setSuccess(true);
+            model.setName(db.getNameByLoginAndPass(model));
+        }
+        context.writeAndFlush(model);
+    }
+
+    private void registration(ChannelHandlerContext context, UserForReg model) {
+        if (db.tryToRegistration(model)) {
+            model.setSuccess(true);
+        }
+        context.writeAndFlush(model);
     }
 
     private void downloadFileToClient(ChannelHandlerContext context, RequestFile model) throws IOException {

@@ -1,7 +1,5 @@
 package com.kmetha.cloudstorage.client.controllers;
 
-import com.kmetha.cloudstorage.client.constants.Constants;
-import com.kmetha.cloudstorage.client.tools.CloseConnection;
 import com.kmetha.cloudstorage.core.action.ActionModel;
 import com.kmetha.cloudstorage.core.action.models.*;
 import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
@@ -9,7 +7,6 @@ import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.ListView;
@@ -19,25 +16,25 @@ import javafx.stage.Stage;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
-public class Client implements Initializable {
+public class Client {
 
-    private static final int PORT = 8189;
-    private static final String NAME = "localhost";
-    private static final String CREATE_NEW_FOLDER = "createFolder.fxml";
+    private final int PORT = 8189;
+    private final String NAME = "192.168.0.101";
+    private final String CREATE_NEW_FOLDER = "createFolder.fxml";
 
     private Socket socket;
-    private ObjectDecoderInputStream is;
     private ObjectEncoderOutputStream os;
+    private ObjectDecoderInputStream is;
+    private String nameClient;
+    private String loginClient;
     private List<File> selectedFiles;
-    private Path clientDir;
+    private Path downloadDir;
 
     public TextArea filesTextArea;
     public ListView<String> serverFilesList;
@@ -64,7 +61,7 @@ public class Client implements Initializable {
     }
 
     private void downloadFileFromServer(TransferFile model) throws IOException {
-        Files.write(clientDir.resolve(model.getFileName()), model.getBytes());
+        Files.write(downloadDir.resolve(model.getFileName()), model.getBytes());
     }
 
     private void mouseClickAction() {
@@ -80,29 +77,27 @@ public class Client implements Initializable {
         });
     }
 
-    private void preConnect() throws IOException {
-        filesTextArea.appendText("Welcome, " + Files.readString(Path.of(Constants.NAME_INFO)) + "!");
-        String login = Files.readString(Path.of(Constants.LOGIN_INFO));
-        os.writeObject(new SelectClientDir(login));
+    private void connectingToTheClientDirectory(String nameClient, String loginClient) throws IOException {
+        filesTextArea.appendText("Welcome, " + nameClient + "!");
+        os.writeObject(new SelectClientDir(loginClient));
     }
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public void initialize(Socket socket, ObjectEncoderOutputStream os, ObjectDecoderInputStream is, String nameClient, String loginClient) {
+        this.socket = socket;
+        this.os = os;
+        this.is = is;
+        this.nameClient = nameClient;
+        this.loginClient = loginClient;
+        downloadDir = Paths.get(System.getProperty("user.home"));
+        Thread monitoringCommands = new Thread(this::monitoringCommands);
+        monitoringCommands.setDaemon(true);
+        monitoringCommands.start();
         try {
-            socket = new Socket(NAME, PORT);
-            os = new ObjectEncoderOutputStream(socket.getOutputStream()); //First
-            is = new ObjectDecoderInputStream(socket.getInputStream()); //Second
-            clientDir = Paths.get(System.getProperty("user.home"));
-            Thread monitoringCommands = new Thread(this::monitoringCommands);
-            monitoringCommands.setDaemon(true);
-            monitoringCommands.start();
-            preConnect();
-            mouseClickAction();
+            connectingToTheClientDirectory(nameClient, loginClient);
         } catch (IOException ioe) {
             ioe.printStackTrace();
-            CloseConnection c = new CloseConnection(is, os, socket);
-            c.closeConnection();
         }
+        mouseClickAction();
     }
 
     /**
@@ -123,7 +118,7 @@ public class Client implements Initializable {
         if (!selectedFiles.isEmpty()) {
             for (File file : selectedFiles) {
                 String path = file.getAbsolutePath();
-                os.writeObject(new TransferFile(clientDir.resolve(path)));
+                os.writeObject(new TransferFile(downloadDir.resolve(path)));
             }
             filesTextArea.clear();
             selectedFiles = new ArrayList<>();

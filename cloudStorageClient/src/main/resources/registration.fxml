@@ -15,7 +15,7 @@
                 </Label>
                 <TextField fx:id="nameField" layoutX="263.0" layoutY="104.0" prefHeight="26.0" prefWidth="206.0" promptText="Your name" />
                 <PasswordField fx:id="passwordField" layoutX="264.0" layoutY="176.0" prefHeight="26.0" prefWidth="206.0" promptText="Password" />
-                <Button layoutX="379.0" layoutY="248.0" mnemonicParsing="false" onAction="#registration" prefHeight="27.0" prefWidth="90.0" style="-fx-background-color: #12DAC1;" text="Finish">
+                <Button layoutX="379.0" layoutY="248.0" mnemonicParsing="false" onAction="#register" prefHeight="27.0" prefWidth="90.0" style="-fx-background-color: #12DAC1;" text="Register">
                     <font>
                         <Font name="Consolas" size="14.0" />
                     </font>

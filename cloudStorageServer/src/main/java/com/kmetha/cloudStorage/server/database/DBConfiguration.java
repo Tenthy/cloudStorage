@@ -1,4 +1,4 @@
-package com.kmetha.cloudstorage.core.database;
+package com.kmetha.cloudStorage.server.database;
 
 public class DBConfiguration {
 

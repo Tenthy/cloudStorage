@@ -1,22 +1,25 @@
 package com.kmetha.cloudstorage.client.controllers;
 
 import com.kmetha.cloudstorage.client.tools.SceneSwitcher;
-import com.kmetha.cloudstorage.core.database.DBHandler;
-import com.kmetha.cloudstorage.core.database.User;
+import com.kmetha.cloudstorage.core.action.models.UserForReg;
+import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
+import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 
-import java.net.URL;
-import java.util.ResourceBundle;
+import java.io.IOException;
 
-public class Registration implements Initializable {
+public class Registration {
 
     private static final String AUTHORIZATION = "authorization.fxml";
     private final SceneSwitcher switcher = new SceneSwitcher();
+
+    private ObjectEncoderOutputStream os;
+    private ObjectDecoderInputStream is;
 
     public AnchorPane pane;
     public TextField nameField;
@@ -26,13 +29,34 @@ public class Registration implements Initializable {
     public Label warningIncorrectlyData;
     public Label warningLoginAlreadyUse;
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
+    public void initialize(ObjectEncoderOutputStream os, ObjectDecoderInputStream is) {
+        this.os = os;
+        this.is = is;
         warningIncorrectlyData.setVisible(false);
         warningLoginAlreadyUse.setVisible(false);
     }
 
-    public void registration(ActionEvent actionEvent) {
+    private void monitoringSuccess() {
+        try {
+            UserForReg model = (UserForReg) is.readObject();
+            if (model.isSuccess()) {
+                Platform.runLater(() -> {
+                    switcher.switchTo(AUTHORIZATION, pane);
+                });
+            } else {
+                warningIncorrectlyData.setVisible(false);
+                warningLoginAlreadyUse.setVisible(true);
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Below this javadoc are methods that are linking to JavaFX objects (Buttons)
+     */
+
+    public void register(ActionEvent actionEvent) throws IOException {
         String name = nameField.getText().trim();
         String login = loginField.getText().trim();
         String pass = passwordField.getText().trim();
@@ -46,20 +70,14 @@ public class Registration implements Initializable {
             warningLoginAlreadyUse.setVisible(false);
             warningIncorrectlyData.setVisible(true);
         } else {
-            DBHandler handler = new DBHandler();
-            User user = new User(name, login, pass);
-            if (handler.tryToRegistration(user)) {
-                nameField.getScene().getWindow().hide();
-                switcher.switchTo(AUTHORIZATION, pane);
-            } else {
-                warningIncorrectlyData.setVisible(false);
-                warningLoginAlreadyUse.setVisible(true);
-            }
+            Thread monitoringCommand = new Thread(this::monitoringSuccess);
+            monitoringCommand.setDaemon(true);
+            monitoringCommand.start();
+            os.writeObject(new UserForReg(name, login, pass));
         }
     }
 
     public void close(ActionEvent actionEvent) {
-        nameField.getScene().getWindow().hide();
         switcher.switchTo(AUTHORIZATION, pane);
     }
 }
