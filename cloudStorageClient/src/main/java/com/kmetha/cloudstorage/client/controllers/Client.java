@@ -25,7 +25,7 @@ import java.util.List;
 public class Client {
 
     private final int PORT = 8189;
-    private final String NAME = "192.168.0.101";
+    private final String NAME = "localhost";
     private final String CREATE_NEW_FOLDER = "createFolder.fxml";
 
     private Socket socket;
